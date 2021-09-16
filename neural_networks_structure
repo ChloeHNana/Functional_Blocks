@@ -6,6 +6,10 @@ import pandas as pd
 import numpy as np
 from itertools import *
 
+# activeation_function_list is a list of str
+# num_nodes_list is a list of int
+# max_layer is a int
+
 def nn_structure(activeation_function_list, num_nodes_list, max_layer):
   # Create a list of nodes number combinations
   node_list = []
