@@ -1,0 +1,31 @@
+# This function is aim to create a list of nn structures (only the hidden layers) with iterations
+# The input required 1) a list of potential activation functions, 2) a list of potential number of nodes in each layers, 3) The max number of hidden layers
+# First applied this function in automatively generate the stuctures for the DeepSurv/Non-linear model in the PySurvial package
+
+import pandas as pd
+import numpy as np
+from itertools import *
+
+def nn_structure(activeation_function_list, num_nodes_list, max_layer):
+  # Create a list of nodes number combinations
+  node_list = []
+  for l in range(max_layer):
+    comb = list(combinations_with_replacement(num_nodes_list,l+1))
+    node_list = node_list + comb
+  
+  # Create the list of neural networks structure
+  # [{'activation': 'A', 'num_units':32}]
+  d={}
+  dlist=[]
+  for i in activeation_function_list:
+    d['activation']=i
+    nlist = []
+    for j in node_list:
+      mlist = []
+      for iter in j:
+        d['num_units'] = iter
+        mlist.append( d.copy())
+      nlist.append( mlist.copy())
+    dlist = dlist + nlist.copy()
+  
+  return dlist
