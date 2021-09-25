@@ -1,0 +1,58 @@
+**Filter**
+First, use a univariate filter if we have many thousands of candidate variables. 
+In this step we want to sort our variables by their importance for predicting the dependent variable y. 
+In other words, the goal is to now how important is each variable by itself (univariate) to predict y.
+
+We can sort the x's by their correlation with y. Note that this finds linear relationships only .
+Or, we can build a univariate model y = f(x) for each x and sort by the model error. We can use any linear or nonlinear univariate model.
+ 
+Instead of model error, we can use any metric that examins the relationship of x with y, as long as its fast.
+Usually, applying a filter to get down from several hundred variables to around 80-100 variables.
+ 
+*Also note that we need to do feature selection using the entire dataset, not on the training dataset only.
+
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+# Use OLS linear regression model as filter
+# Sepreate x and y
+X = df.drop('y',axis = 1)
+y = df['y']
+
+# Build univariate model
+Filter = pd.DataFrame(columns = ['Variable','MSE'])
+Variable = X.columns
+MSE = []
+for i in Variable:
+    X = df[[i]]
+    lr = LinearRegression()                          # Logistic Regression is a great option when applying filter in the classification problems
+    lr.fit(X,y)
+    y_pred = lr.predict(X)
+    mse = mean_squared_error(y,y_pred)
+    MSE.append(mse)
+Filter['Variable'] = Variable
+Filter['MSE'] = MSE
+
+Filter.sort_values(by = 'MSE')
+
+
+**Wrapper**
+Wrapper is a stepwise selection methods. A wrapper methond has a model "wrapped" around the process. The model can be anything. 
+Since we need to build many models, we usually use a linear wrapper model (sample).
+ 
+Forward Selection Wrapper: Build n (number of x) separate models, keep the best variable at each step
+Backward Selection Wrapper: Build a single model using all variables. Remove one variale on-by-one and find the model that decays the least. 
+                            Keep removing the least important variable at each step
+ 
+After doing a filter, typically we have around 100 variables. We then use a wrapper to get down to around 30 variables. 
+Then, we try building a model with 5,10,15,20,25,30 variables. 
+
+from mlxtend.feature_selection import SequentialFeatureSelector as SFS
+# Conduct Backward Selection Wrapper
+wrapper_data = df.drop('y',axis = 1)
+y = df[['y']]
+model = LinearRegression()
+sfs = SFS(model, k_features = 1, forward = False, verbose = 2, scoring = 'neg_mean_squared_error', cv = 0)
+sfs.fit(wrapper_data,y)
+
+pd.DataFrame.from_dict(sfs.get_metric_dict()).T           # Form a df with selected features index, cv_scores,	avg_score,	feature_names,	ci_bound,	std_dev,	std_err
