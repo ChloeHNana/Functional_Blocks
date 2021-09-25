@@ -1,0 +1,54 @@
+# Input is a dataset with memberships' IDs, start dates and end dates and their address
+# The goal is preparing data for Tableau virtrualization, showing how the number of membership changing in each area (zipcode) along time
+# A dictionary contains a series of dictionaries (zipcode), each of sub_dict the number of member at each time points
+
+import os
+import pandas as pd
+import numpy as np
+#!pip install zipcodes
+import zipcodes
+import datetime
+from datetime import date
+today_add1 = (date.today()+datetime.timedelta(days=1)).strftime("%Y-%m-%d")    
+today_add1
+
+# Clean the zipcode into 5 digits
+Zip5digit=[x+'0'if len(x)<4 else x for x in Zip5digit ]
+mapping_df['Zip5']=Zip5digit
+
+for i in range(len(mapping_df)):
+    if len(mapping_df.Zip5[i])<4:
+        mapping_df.Zip5[i]= mapping_df.ZipCd[i]
+
+Zip5digit=mapping_df.Zip5.astype('str')
+Zip5digit_fin=[]
+for i in Zip5digit:
+    a= i.zfill(5)                        #fill 0 in a str to 5 digits
+    Zip5digit_fin.append(a)
+
+
+#separate into dataframes based on zipcode
+Zip5_info=list(df.Zip5.unique())
+df_dict={}
+for zip_index,temp_zip5 in enumerate(Zip5_info):
+    temp_zip5_data=df[df['Zip5'].isin([target_zip5])].reset_index(drop=True)
+    #dff=exec('df%s=temp_zip5_data'%temp_zip5)
+    df_dict['df'+target_zip5]=temp_zip5_data
+
+#dataframe name list
+df_name=['df'+x for x in Zip5_info]
+
+#number of each rigen in each month
+dat_dict={}
+for d in df_name:
+    df=df_dict[d]
+    Count=np.zeros(len(time_range)).tolist()
+    for i in range(len(time_range)):
+        for j in range(len(df)):
+            if df['StartDate'][j]<=time_range[i]<df['EndDate'][j]:
+                Count[i]+=1
+    temp_data=pd.DataFrame({'Date':time_range,'Count':pd.Series(Count).astype('int'),'ZipCd5':d[2:]})
+    #exec('dt%s=temp_data'%d)
+    dat_dict['dat'+d]=temp_data
+
+
