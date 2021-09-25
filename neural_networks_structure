@@ -33,3 +33,4 @@ def nn_structure(activeation_function_list, num_nodes_list, max_layer):
     dlist = dlist + nlist.copy()
   
   return dlist
+
