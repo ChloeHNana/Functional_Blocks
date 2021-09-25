@@ -1,0 +1,28 @@
+from textblob import TextBlob
+
+def generate_polarity(comment):
+    '''Extract polarity score (-1 to +1) for each response'''
+    return TextBlob(comment).sentiment[0]
+ 
+ polarity = text_df.apply(generate_polarity)
+ 
+#plot distribution of sentiment scores
+num_bins = 30
+plt.figure(figsize=(10,6))
+n, bins, patches = plt.hist(polarity, num_bins, facecolor='green', alpha=0.6)
+plt.xlabel('Polarity')
+plt.ylabel('Count')
+plt.title('Histogram of polarity / sentiment score')
+plt.show()
+
+polarity_df_en = pd.DataFrame()
+polarity_df_en['Words']=text_df
+polarity_df_en['Polarity']=polarity
+
+#Top 10 comments with a positive sentiment
+positive_sentiment = polarity_df_en.nlargest(10, 'Polarity')
+positive_sentiment.style.set_properties(subset=['Words'], **{'width': '300px'})
+
+#Top 10 comments with a negative sentiment
+negative_sentiment = polarity_df_en.nsmallest(10, 'Polarity')
+negative_sentiment.style.set_properties(subset=['Words'], **{'width': '300px'})
